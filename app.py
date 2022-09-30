@@ -8,6 +8,8 @@ from Crypto.Util.Padding import pad, unpad
 import logging
 import logging.config
 import subprocess
+import json
+import urllib.request
 
 log_level = {
   'CRITICAL': 50,
@@ -88,10 +90,31 @@ def get_password(email):
 def hello():
     return "<body style='background-color:LightGray;'><center><h3 style='background-color:DodgerBlue;'>Hello From Insecure Password Manager</h3></center>"
 
+#SSRF Vulnerability
 @app.route('/redirect')
 def web():
-    site=request.args.get('url')
-    return command('curl {}'.format(site))
+    try:
+        site=request.args.get('url')
+        response = urllib.request.urlopen(site)
+        output=json.dumps(response.read().decode('utf-8', errors='ignore'))
+        return jsonify({"output": output}), 200
+    except:
+        return ("Error Ocurred")
+
+#Command Execution
+@app.route('/date')
+def command():
+    try:
+        cmd = request.args.get('exec')
+        count = subprocess.Popen(cmd, stdout=subprocess.PIPE, shell=True)
+        stdout, stderr = count.communicate()
+        #print(stdout.decode())
+        return jsonify({"output": stdout.decode()}), 200
+
+    except:
+        return ("Error Ocurred")
+      
+
 
 if __name__ == "__main__":
     logger.warning('In Main function')
