@@ -1,7 +1,7 @@
-# syntax=docker/dockerfile:1
-
 FROM python:3.8-slim-buster
-
+LABEL maintainer="Justmorpheus <namaste@securitydojo.co.in"
+LABEL version="1.0"
+LABEL description="This is insecure password manager for k8s labs @ securitydojo"
 WORKDIR /python-docker
 
 COPY requirements.txt requirements.txt
